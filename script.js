@@ -2,6 +2,8 @@
 // Armazenar qual cor esta selecionada
 let currentColor = 'black';
 let canDraw = false;
+let mouseX = 0;
+let mouseY = 0;
 
 // Selecionando o elemento Canvas
 let screen = document.querySelector('#tela');
@@ -13,6 +15,8 @@ let context = screen.getContext('2d');
 document.querySelectorAll('.colorArea .color').forEach(item => {
     item.addEventListener('click', colorClickEvent);
 });
+
+document.querySelector('.clear').addEventListener('click', clearScreen);
 
 screen.addEventListener('mousedown', mouseDownEvent);
 screen.addEventListener('mousemove', mouseMoveEvent);
@@ -31,16 +35,15 @@ function colorClickEvent(e) {
 }
 
 // Função que vai ativar o modo desenho
-function mouseDownEvent() {
+function mouseDownEvent(e) {
     canDraw = true;
+    mouseX = e.pageX - screen.offsetLeft;
+    mouseY = e.pageY - screen.offsetTop;
 }
 // Função que vai desenhar os traços na tela
 function mouseMoveEvent(e) {
     if (canDraw) {
-        // Pega a posição do mouse na pagina para saber onde desenhar os traços
-        // Ajustando a posição em relação ao tamanho do canvas
-        let pointX = e.pageX - screen.offsetLeft;
-        let pointY = e.pageY - screen.offsetTop;
+        draw(e.pageX, e.pageY)
     }
 }
 // Função que vai desativar o modo desenho
@@ -48,3 +51,30 @@ function mouseUpEvent() {
     canDraw = false;
 }
 
+// Função que vai desenhar os traços na tela
+function draw(x, y) {
+    // Pegando posição do cursor
+    let pointX = x - screen.offsetLeft;
+    let pointY = y - screen.offsetTop;
+
+    // Criando o desenho
+    context.beginPath();
+    context.lineWidth = 5;
+    context.lineJoin = "round";
+    context.moveTo(mouseX, mouseY);
+    context.lineTo(pointX, pointY);
+    context.closePath();
+    context.strokeStyle = currentColor;
+    context.stroke();
+
+    mouseX = pointX;
+    mouseY = pointY;
+}
+
+// Função responsavel por limpar o quadro
+function clearScreen() {
+    // Zera o processo de desenho
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    // Limpa totalmente o quadro
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+}
